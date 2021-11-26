@@ -13,6 +13,11 @@ type Token struct {
 	Value string `json:"value,omitempty"`
 }
 
+// tokenOf returns a Token that represents the given literal value.
+func tokenOf(typ TokenType, val string) Token {
+	return Token{Type: typ, Value: val}
+}
+
 // String returns the string representation of t in the following format:
 // <type> [<value> | "<empty>"]
 func (t Token) String() string {
