@@ -20,6 +20,9 @@ type Lexer struct {
 
 	// tokens is the channel of recent lexed tokens.
 	tokens chan Token
+
+	// openingQuote is the opening quote in the current state.
+	openingQuote rune
 }
 
 // NewLexer returns a new Lexer that is configured by the first given LexerOptions.
@@ -56,6 +59,7 @@ func (l *Lexer) reset(rd io.Reader) {
 
 	l.rd = bufio.NewReader(rd)
 	l.tokens = make(chan Token)
+	l.openingQuote = 0
 }
 
 // send sends a token to l's tokens channel.
