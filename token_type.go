@@ -17,7 +17,8 @@ const (
 	// TokenTypePrefix is the token type for prefixes.
 	TokenTypePrefix
 
-	// TokenTypeLabel is the token type for labels.
+	// TokenTypeLabel is the token type for labels. It indicates the name of the
+	// command to execute. For example: 'help', 'version', 'list'.
 	TokenTypeLabel
 
 	// TokenTypeFlag is the token type for flag name. For example: '--help', '-v'
