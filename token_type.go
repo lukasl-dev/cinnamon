@@ -24,6 +24,11 @@ const (
 	// TokenTypeFlag is the token type for flag name. For example: '--help', '-v'
 	TokenTypeFlag
 
+	// TokenTypeAssign is the token type for the assignment operator of flags.
+	// It is used to separate the flag name from the flag value. For example:
+	// '--help=true', '-v=true'.
+	TokenTypeAssign
+
 	// TokenTypeArgument is the token type for arguments. Arguments are space-separated
 	// strings (spaces included).
 	TokenTypeArgument
