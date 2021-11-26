@@ -58,6 +58,7 @@ func (l *Lexer) reset(rd io.Reader) {
 	l.tokens = make(chan Token)
 }
 
+// send sends a token to l's tokens channel.
 func (l *Lexer) send(typ TokenType, val string) {
 	l.tokens <- tokenOf(typ, val)
 }
