@@ -16,12 +16,12 @@ func _() {
 	_ = x[TokenTypeAssign-5]
 	_ = x[TokenTypeArgument-6]
 	_ = x[TokenTypeOpeningQuote-7]
-	_ = x[TokenTypeEndQuote-8]
+	_ = x[TokenTypeClosingQuote-8]
 }
 
-const _TokenType_name = "InvalidEOFPrefixLabelFlagAssignArgumentOpeningQuoteEndQuote"
+const _TokenType_name = "InvalidEOFPrefixLabelFlagAssignArgumentOpeningQuoteClosingQuote"
 
-var _TokenType_index = [...]uint8{0, 7, 10, 16, 21, 25, 31, 39, 51, 59}
+var _TokenType_index = [...]uint8{0, 7, 10, 16, 21, 25, 31, 39, 51, 63}
 
 func (i TokenType) String() string {
 	if i >= TokenType(len(_TokenType_index)-1) {

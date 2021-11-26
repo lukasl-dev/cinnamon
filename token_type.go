@@ -37,7 +37,7 @@ const (
 	// that a quote is expected.
 	TokenTypeOpeningQuote
 
-	// TokenTypeEndQuote is the token type for closing quotes. It indicates
+	// TokenTypeClosingQuote is the token type for closing quotes. It indicates
 	// that a quote ends.
-	TokenTypeEndQuote
+	TokenTypeClosingQuote
 )
