@@ -91,6 +91,10 @@ func (l *Lexer) lexRemaining() lexerStateFunc {
 // lexFlag reads a single flag from l's reader. If something goes wrong, nil is
 // returned and TokenTypeEOF is sent to l's token channel.
 func (l *Lexer) lexFlag() lexerStateFunc {
+	if l.opts.NoFlags {
+		return l.lexArgument
+	}
+
 	runes, err := l.readRunes(func(r rune) bool { return unicode.IsSpace(r) })
 	if len(runes) > 0 {
 		l.send(TokenTypeFlag, string(runes))

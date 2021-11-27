@@ -15,4 +15,7 @@ type LexerOptions struct {
 
 	// LabelIgnoreCase specifies whether the labels are case-insensitive.
 	LabelIgnoreCase bool `json:"labelIgnoreCase,omitempty"`
+
+	// NoFlags indicates whether the lexer should handle flags as arguments.
+	NoFlags bool `json:"noFlags,omitempty"`
 }
