@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 	"sync"
+	"unicode"
 )
 
 // Lexer is a lexical reader.
@@ -67,6 +68,12 @@ func (l *Lexer) send(typ TokenType, val string) {
 	l.tokens <- tokenOf(typ, val)
 }
 
+// eof sends TokenTypeEOF with val to l's token channel and returns nil.
+func (l *Lexer) eof(val string) lexerStateFunc {
+	l.send(TokenTypeEOF, val)
+	return nil
+}
+
 // readRunes reads runes from l's reader until pred returns true or an error
 // occurs.
 func (l *Lexer) readRunes(pred func(r rune) bool) (runes []rune, err error) {
@@ -79,6 +86,20 @@ func (l *Lexer) readRunes(pred func(r rune) bool) (runes []rune, err error) {
 		if pred(r) {
 			return runes, nil
 		}
+	}
+}
+
+func (l *Lexer) readUntilNonSpace() (rs []rune, err error) {
+	for {
+		r, _, err := l.rd.ReadRune()
+		if err != nil {
+			return rs, err
+		}
+		if !unicode.IsSpace(r) {
+			_ = l.unreadRune()
+			return rs, nil
+		}
+		rs = append(rs, r)
 	}
 }
 

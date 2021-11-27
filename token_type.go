@@ -30,7 +30,7 @@ const (
 	TokenTypeAssign
 
 	// TokenTypeArgument is the token type for arguments. Arguments are space-separated
-	// strings (spaces included).
+	// strings (readUntilNonSpace included).
 	TokenTypeArgument
 
 	// TokenTypeOpeningQuote is the token type for opening quotes. It indicates

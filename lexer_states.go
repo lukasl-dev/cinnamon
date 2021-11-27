@@ -1,6 +1,7 @@
 package cinnamon
 
 import (
+	"strings"
 	"unicode"
 )
 
@@ -20,12 +21,10 @@ func (l *Lexer) lexPrefix() lexerStateFunc {
 
 	length, err := l.firstMatching(l.opts.Prefixes, l.opts.PrefixIgnoreCase)
 	if err != nil {
-		l.send(TokenTypeEOF, "")
-		return nil
+		return l.eof("")
 	}
 	if length == 0 {
-		l.send(TokenTypeEOF, "prefix not found")
-		return nil
+		return l.eof("prefix not found")
 	}
 
 	bs, err := l.readLimited(length)
@@ -33,8 +32,7 @@ func (l *Lexer) lexPrefix() lexerStateFunc {
 		l.send(TokenTypePrefix, string(bs))
 	}
 	if err != nil {
-		l.send(TokenTypeEOF, "")
-		return nil
+		return l.eof("")
 	}
 
 	return l.lexLabel
@@ -49,12 +47,10 @@ func (l *Lexer) lexLabel() lexerStateFunc {
 
 	length, err := l.firstMatching(l.opts.Labels, l.opts.LabelIgnoreCase)
 	if err != nil {
-		l.send(TokenTypeEOF, "")
-		return nil
+		return l.eof("")
 	}
 	if length == 0 {
-		l.send(TokenTypeEOF, "label not found")
-		return nil
+		return l.eof("label not found")
 	}
 
 	bs, err := l.readLimited(length)
@@ -79,13 +75,14 @@ func (l *Lexer) lexLabel() lexerStateFunc {
 func (l *Lexer) lexRemaining() lexerStateFunc {
 	r, _, err := l.readRune()
 	if err != nil {
-		l.send(TokenTypeEOF, "")
-		return nil
+		return l.eof("")
 	}
 	_ = l.unreadRune()
-	switch r {
-	case '-':
+	switch {
+	case r == '-':
 		return l.lexFlag
+	case isQuote(r):
+		return l.lexQuote
 	default:
 		return l.lexArgument
 	}
@@ -99,22 +96,62 @@ func (l *Lexer) lexFlag() lexerStateFunc {
 		l.send(TokenTypeFlag, string(runes))
 	}
 	if err != nil {
-		l.send(TokenTypeEOF, "")
-		return nil
+		return l.eof("")
 	}
 	return l.lexRemaining
+}
+
+func (l *Lexer) lexQuote() lexerStateFunc {
+	r, _, err := l.readRune()
+	if err != nil {
+		return l.eof("")
+	}
+	switch {
+	case l.openingQuote == 0:
+		l.openingQuote = r
+		l.send(TokenTypeOpeningQuote, string(r))
+		return l.lexRemaining
+	case l.openingQuote == r:
+		l.openingQuote = 0
+		l.send(TokenTypeClosingQuote, string(r))
+		return l.lexRemaining
+	default:
+		_ = l.unreadRune()
+		return l.lexArgument
+	}
 }
 
 // lexArgument reads a single argument from l's reader. If something goes wrong,
 // nil is returned and TokenTypeEOF is sent to l's token channel.
 func (l *Lexer) lexArgument() lexerStateFunc {
-	runes, err := l.readRunes(func(r rune) bool { return unicode.IsSpace(r) })
-	if len(runes) > 0 {
-		l.send(TokenTypeArgument, string(runes))
+	rs, err := l.readRunes(func(r rune) bool { return unicode.IsSpace(r) })
+	spaces, _ := l.readUntilNonSpace()
+	rs = append(rs, spaces...)
+
+	if len(rs) > 0 {
+		var quote rune
+
+		trim := []rune(strings.TrimRight(string(rs), " "))
+		if len(trim) > 0 && trim[len(trim)-1] == l.openingQuote {
+			i := len(trim) - 1
+			quote = rs[i]
+			rs = rs[:i]
+		}
+
+		if len(rs) > 0 {
+			l.send(TokenTypeArgument, string(rs))
+		}
+		if quote != 0 {
+			l.send(TokenTypeClosingQuote, string(quote))
+		}
 	}
 	if err != nil {
-		l.send(TokenTypeEOF, "")
-		return nil
+		return l.eof("")
 	}
+
 	return l.lexRemaining
+}
+
+func isQuote(r rune) bool {
+	return r == '"' || r == '\'' || r == '`'
 }
