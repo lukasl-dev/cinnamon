@@ -89,6 +89,8 @@ func (l *Lexer) readRunes(pred func(r rune) bool) (runes []rune, err error) {
 	}
 }
 
+// readUntilNonSpace reads runes from l's reader until a non-space rune is read
+// or an error occurs. The non-space rune is unread.
 func (l *Lexer) readUntilNonSpace() (rs []rune, err error) {
 	for {
 		r, _, err := l.rd.ReadRune()
