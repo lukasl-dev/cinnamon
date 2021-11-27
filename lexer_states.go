@@ -80,6 +80,9 @@ func (l *Lexer) lexRemaining() lexerStateFunc {
 	_ = l.unreadRune()
 	switch {
 	case r == '-':
+		if l.openingQuote != 0 {
+			return l.lexArgument
+		}
 		return l.lexFlag
 	case isQuote(r):
 		return l.lexQuote
